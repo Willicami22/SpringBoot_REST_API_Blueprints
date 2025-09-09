@@ -10,12 +10,16 @@ import edu.eci.arsw.blueprints.model.Point;
 import edu.eci.arsw.blueprints.persistence.BlueprintNotFoundException;
 import edu.eci.arsw.blueprints.persistence.BlueprintPersistenceException;
 import edu.eci.arsw.blueprints.persistence.BlueprintsPersistence;
+import edu.eci.arsw.blueprints.services.RedundancyFiltering;
+import edu.eci.arsw.blueprints.services.SubsamplingFiltering;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
 import edu.eci.arsw.blueprints.persistence.impl.InMemoryBlueprintPersistence;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 /**
@@ -27,6 +31,9 @@ public class BlueprintsServices {
    
     @Autowired
     BlueprintsPersistence bpp = new InMemoryBlueprintPersistence();
+
+    @Autowired
+    Filter filter;
     
     public void addNewBlueprint(Blueprint bp) throws BlueprintPersistenceException {
        try {
@@ -39,6 +46,9 @@ public class BlueprintsServices {
     
     public Set<Blueprint> getAllBlueprints() throws BlueprintNotFoundException {
         try {
+            for(Blueprint bp : bpp.getAllBlueprints()){
+                filter.filter(bp);
+            }
             return bpp.getAllBlueprints();
         }
         catch (BlueprintNotFoundException e){
@@ -55,7 +65,7 @@ public class BlueprintsServices {
      */
     public Blueprint getBlueprint(String author,String name) throws BlueprintNotFoundException{
         try{
-            return bpp.getBlueprint(author, name);
+            return filter.filter(bpp.getBlueprint(author, name));
         }
         catch (BlueprintNotFoundException e){
             throw new BlueprintNotFoundException("Blueprint not found");
@@ -70,11 +80,13 @@ public class BlueprintsServices {
      */
     public Set<Blueprint> getBlueprintsByAuthor(String author) throws BlueprintNotFoundException{
         try{
+            for(Blueprint bp : bpp.getBlueprintsByAuthor(author)){
+                filter.filter(bp);
+            }
             return bpp.getBlueprintsByAuthor(author);
         }
         catch (BlueprintNotFoundException e){
             throw new BlueprintNotFoundException("Blueprint not found");
         }
     }
-    
 }
