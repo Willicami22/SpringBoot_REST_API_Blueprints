@@ -10,6 +10,8 @@ import edu.eci.arsw.blueprints.model.Point;
 import edu.eci.arsw.blueprints.persistence.BlueprintNotFoundException;
 import edu.eci.arsw.blueprints.persistence.BlueprintPersistenceException;
 import edu.eci.arsw.blueprints.persistence.impl.InMemoryBlueprintPersistence;
+
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.junit.Test;
@@ -68,6 +70,40 @@ public class InMemoryPersistenceTest {
                 
         
     }
+
+    @Test
+    public void getBlueprintTest() throws BlueprintPersistenceException, BlueprintNotFoundException {
+        InMemoryBlueprintPersistence ibpp=new InMemoryBlueprintPersistence();
+        Point[] pts=new Point[]{new Point(0, 0),new Point(10, 10)};
+        Blueprint bp=new Blueprint("john", "thepaint",pts);
+
+        ibpp.saveBlueprint(bp);
+
+        assertEquals("Loading a previously stored blueprint returned a different blueprint.",ibpp.getBlueprint(bp.getAuthor(), bp.getName()), bp);
+    }
+
+
+    @Test
+    public void getBlueprintsByAuthorTest() throws BlueprintPersistenceException, BlueprintNotFoundException {
+        InMemoryBlueprintPersistence ibpp=new InMemoryBlueprintPersistence();
+        Point[] pts=new Point[]{new Point(0, 0),new Point(10, 10)};
+        Blueprint bp=new Blueprint("john", "thepaint",pts);
+
+        ibpp.saveBlueprint(bp);
+
+        Point[] pts1=new Point[]{new Point(10, 20),new Point(30, 40)};
+        Blueprint bp1=new Blueprint("john", "thepaint1",pts1);
+
+        ibpp.saveBlueprint(bp1);
+
+        Set<Blueprint> bps=ibpp.getBlueprintsByAuthor("john");
+        assertEquals("The author has two blueprints", 2, bps.size());
+
+        assertEquals("The first blueprint is not the expected one", bp, bps.stream().filter(bp2 -> bp2.getName().equals("thepaint")).findFirst().get());
+        assertEquals("The second blueprint is not the expected one", bp1, bps.stream().filter(bp3 -> bp3.getName().equals("thepaint1")).findFirst().get());
+    }
+
+
 
 
     
