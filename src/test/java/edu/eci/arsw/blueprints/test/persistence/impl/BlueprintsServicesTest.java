@@ -94,5 +94,13 @@ public class BlueprintsServicesTest {
         } catch (BlueprintNotFoundException e) {
             fail("Unexpected exception");
         }
+        
+        try {
+            Blueprint lm10 = blueprintsServices.getBlueprint("lionel", "worldcup");
+            List<Point> plm10 = lm10.getPoints();
+            assertEquals(plm10.size(), 7);
+        } catch (BlueprintNotFoundException e) {
+            fail("Unexpected exception");
+        }
     }
 }

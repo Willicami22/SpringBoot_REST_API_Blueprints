@@ -1,36 +1,92 @@
-## Escuela Colombiana de Ingeniería
+# Escuela Colombiana de Ingeniería
 
 ## Arquitecturas de Software
 
-# Componentes y conectores - Parte I.
+### Integrantes
+- **William Camilo Hernández Deaza**
+- **Manuel David Robayo Vega**
 
-El ejercicio se debe traer terminado para el siguiente laboratorio (Parte II).
+---
 
-#### Middleware- gestión de planos.
+# Componentes y Conectores - Parte I
 
+## Middleware: Gestión de Planos
 
-## Antes de hacer este ejercicio, realice [el ejercicio introductorio al manejo de Spring y la configuración basada en anotaciones](https://github.com/ARSW-ECI/Spring_LightweightCont_Annotation-DI_Example).
+En este ejercicio se construyó un **modelo de clases** para la capa lógica de una aplicación que permite gestionar planos arquitectónicos de una prestigiosa compañía de diseño.
 
-En este ejercicio se va a construír un modelo de clases para la capa lógica de una aplicación que permita gestionar planos arquitectónicos de una prestigiosa compañia de diseño. 
+![Diagrama de Clases](img/ClassDiagram1.png)
 
-![](img/ClassDiagram1.png)
+---
 
-1. Configure la aplicación para que funcione bajo un esquema de inyección de dependencias, tal como se muestra en el diagrama anterior.
+## 1. Configuración con Inyección de Dependencias
 
+Se configuró la aplicación para trabajar bajo un esquema de **inyección de dependencias** utilizando Spring, tal como se muestra en el diagrama.
 
-	Lo anterior requiere:
+**Acciones realizadas:**
+- Se agregaron las dependencias de Spring en el archivo `pom.xml`.
+- Se creó la carpeta `resources` con el archivo `application.properties` para definir el puerto y nombre de la aplicación.
+- Se utilizaron las siguientes anotaciones:
+	- `@Service` en las clases `BlueprintService` y `InMemoryBlueprintPersistence`.
+	- `@Autowired` en el atributo `blueprintPersistence` de la clase `BlueprintService`.
 
-	* Agregar las dependencias de Spring.
-	* Agregar la configuración de Spring.
-	* Configurar la aplicación -mediante anotaciones- para que el esquema de persistencia sea inyectado al momento de ser creado el bean 'BlueprintServices'.
+---
 
+## 2. Implementación de operaciones básicas
 
-2. Complete los operaciones getBluePrint() y getBlueprintsByAuthor(). Implemente todo lo requerido de las capas inferiores (por ahora, el esquema de persistencia disponible 'InMemoryBlueprintPersistence') agregando las pruebas correspondientes en 'InMemoryPersistenceTest'.
+Se completaron las operaciones:
+- `getBluePrint()`
+- `getBlueprintsByAuthor()`
 
-3. Haga un programa en el que cree (mediante Spring) una instancia de BlueprintServices, y rectifique la funcionalidad del mismo: registrar planos, consultar planos, registrar planos específicos, etc.
+Estas fueron implementadas en la clase `BlueprintService` y probadas en `InMemoryPersistenceTest`, confirmando su correcto funcionamiento.
 
-4. Se quiere que las operaciones de consulta de planos realicen un proceso de filtrado, antes de retornar los planos consultados. Dichos filtros lo que buscan es reducir el tamaño de los planos, removiendo datos redundantes o simplemente submuestrando, antes de retornarlos. Ajuste la aplicación (agregando las abstracciones e implementaciones que considere) para que a la clase BlueprintServices se le inyecte uno de dos posibles 'filtros' (o eventuales futuros filtros). No se contempla el uso de más de uno a la vez:
-	* (A) Filtrado de redundancias: suprime del plano los puntos consecutivos que sean repetidos.
-	* (B) Filtrado de submuestreo: suprime 1 de cada 2 puntos del plano, de manera intercalada.
+---
 
-5. Agrege las pruebas correspondientes a cada uno de estos filtros, y pruebe su funcionamiento en el programa de prueba, comprobando que sólo cambiando la posición de las anotaciones -sin cambiar nada más-, el programa retorne los planos filtrados de la manera (A) o de la manera (B). 
+## 3. Programa de prueba con Spring
+
+Se creó una clase **Main** que instancia `BlueprintServices` mediante Spring y valida su funcionalidad:
+- Registro de planos.
+- Consulta de planos.
+- Registro de planos específicos.
+
+Al ejecutarse, la aplicación crea varios planos de ejemplo y prueba sus operaciones.
+
+---
+
+## 4. Implementación de filtros
+
+Se implementó un sistema de **filtrado** para procesar los planos antes de retornarlos.
+
+Se diseñó una interfaz `Filter` con dos implementaciones:
+
+1. **RedundancyFiltering**
+	- Elimina puntos consecutivos repetidos en el plano.
+
+2. **SubsamplingFiltering**
+	- Elimina 1 de cada 2 puntos del plano (submuestreo intercalado).
+
+Ambas clases fueron anotadas con `@Service`.  
+La clase marcada como `@Primary` es la que se inyecta automáticamente en `BlueprintService`.
+
+---
+
+## 5. Pruebas de filtros
+
+Se agregaron pruebas unitarias para cada filtro, comprobando que:
+
+- Cuando `RedundancyFiltering` se marca como `@Primary`, los planos se devuelven filtrados por redundancia (A).
+- Cuando `SubsamplingFiltering` se marca como `@Primary`, los planos se devuelven por submuestreo (B).
+
+### Resultados de pruebas
+
+**Filtro de redundancia (A):**  
+![Redundacy](img/media/img.png)  
+![ResultsRedundacy](/img/media/img_1.png)
+
+**Filtro de submuestreo (B):**  
+![Subsampling](/img/media/img_2.png)  
+![ResultsSubsampling](img/media/img_3.png)
+
+---
+
+Con este esquema, solo cambiando la anotación `@Primary` se puede alternar fácilmente entre los filtros, sin modificar el resto del código.
+

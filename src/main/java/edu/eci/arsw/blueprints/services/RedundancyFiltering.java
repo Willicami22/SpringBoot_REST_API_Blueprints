@@ -9,7 +9,6 @@ import org.springframework.context.annotation.Primary;
 
 
 @Service
-@Primary
 public class RedundancyFiltering implements Filter{
     private List<Point> points;
 
